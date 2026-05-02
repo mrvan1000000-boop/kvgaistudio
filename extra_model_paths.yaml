@@ -1,0 +1,6 @@
+wan2_volume:
+  base_path: /runpod-volume/
+  checkpoints: models/checkpoints/
+  vae: models/vae/
+  text_encoders: models/text_encoders/
+  clip: models/clip/
