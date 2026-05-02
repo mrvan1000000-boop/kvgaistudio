@@ -1,4 +1,4 @@
-FROM runpod/worker-comfyui:5.2.0-base
+FROM runpod/worker-comfyui:5.8.5-base
 
 RUN cd /comfyui/custom_nodes && \
     git clone https://github.com/kijai/ComfyUI-WanVideoWrapper.git && \
