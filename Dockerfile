@@ -6,6 +6,16 @@ RUN cd /comfyui/custom_nodes && \
     pip install -r requirements.txt --no-cache-dir
 
 COPY extra_model_paths.yaml /comfyui/extra_model_paths.yaml
-COPY handler.py /rp_handler.py
+COPY handler.py /handler.py
 
-CMD ["/start.sh"]
+# Создаём свой start скрипт
+RUN echo '#!/bin/bash\n\
+echo "Starting ComfyUI..."\n\
+python /comfyui/main.py --listen 0.0.0.0 --port 8188 &\n\
+echo "Waiting for ComfyUI..."\n\
+sleep 10\n\
+echo "Starting handler..."\n\
+python -u /handler.py' > /start_custom.sh && \
+    chmod +x /start_custom.sh
+
+CMD ["/start_custom.sh"]
