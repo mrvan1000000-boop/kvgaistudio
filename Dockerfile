@@ -13,7 +13,7 @@ RUN echo '#!/bin/bash\n\
 echo "Starting ComfyUI..."\n\
 python /comfyui/main.py --listen 0.0.0.0 --port 8188 &\n\
 echo "Waiting for ComfyUI..."\n\
-sleep 10\n\
+sleep 30\n\
 echo "Starting handler..."\n\
 python -u /handler.py' > /start_custom.sh && \
     chmod +x /start_custom.sh
