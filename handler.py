@@ -15,8 +15,12 @@ def queue_prompt(workflow):
     data = json.dumps({"prompt": workflow}).encode()
     req  = urllib.request.Request(f"{COMFYUI}/prompt", data=data,
                                    headers={"Content-Type": "application/json"})
-    with urllib.request.urlopen(req) as r:
-        return json.loads(r.read())["prompt_id"]
+    try:
+        with urllib.request.urlopen(req) as r:
+            return json.loads(r.read())["prompt_id"]
+    except urllib.error.HTTPError as e:
+        body = e.read().decode()
+        raise RuntimeError(f"ComfyUI 400: {body}")
 
 def poll_done(prompt_id, timeout=3600):
     deadline = time.time() + timeout
