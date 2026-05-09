@@ -87,3 +87,4 @@ def handler(job):
         b64 = base64.b64encode(f.read()).decode()
     os.remove(path)
     return {"video_b64": b64, "size": size}
+runpod.serverless.start({"handler": handler})
