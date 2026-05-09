@@ -36,12 +36,28 @@ def poll_done(prompt_id, timeout=3600):
     return None
 
 def handler(job):
+    # Диагностика нод
+    nodes_dir = "/comfyui/custom_nodes"
+    if os.path.exists(nodes_dir):
+        print(f"Custom nodes: {os.listdir(nodes_dir)}")
+    else:
+        print(f"ERROR: {nodes_dir} does not exist!")
+
     workflow = job.get("input", {}).get("workflow")
     if not workflow:
         return {"error": "No workflow"}
 
     if not wait_comfyui():
         return {"error": "ComfyUI not ready"}
+
+    # Проверяем доступные ноды
+    try:
+        with urllib.request.urlopen(f"{COMFYUI}/object_info", timeout=5) as r:
+            obj = json.loads(r.read())
+            wan_nodes = [k for k in obj.keys() if "Wan" in k]
+            print(f"Wan nodes available: {wan_nodes}")
+    except Exception as e:
+        print(f"Cannot get object_info: {e}")
 
     prompt_id = queue_prompt(workflow)
     print(f"Queued: {prompt_id}")
@@ -50,12 +66,10 @@ def handler(job):
     if result is None:
         return {"error": "Timeout"}
 
-    # Проверяем ошибки ComfyUI
     status = result.get("status", {})
     if status.get("status_str") == "error":
         return {"error": str(status.get("messages", "unknown"))}
 
-    # Ищем mp4 файл
     out_dir = "/comfyui/output"
     mp4s = sorted(glob.glob(f"{out_dir}/**/*.mp4", recursive=True) +
                   glob.glob(f"{out_dir}/*.mp4"),
@@ -72,7 +86,4 @@ def handler(job):
     with open(path, "rb") as f:
         b64 = base64.b64encode(f.read()).decode()
     os.remove(path)
-
     return {"video_b64": b64, "size": size}
-
-runpod.serverless.start({"handler": handler})
