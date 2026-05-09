@@ -11,10 +11,29 @@ def wait_comfyui(max_sec=120):
             time.sleep(1)
     return False
 
+def upload_image(image_b64: str, filename: str = "input_image.jpg") -> str:
+    img_bytes = base64.b64decode(image_b64)
+    boundary = "FormBoundary7MA4YWxkTrZu0gW"
+    body = (
+        f"--{boundary}\r\n"
+        f'Content-Disposition: form-data; name="image"; filename="{filename}"\r\n'
+        f"Content-Type: image/jpeg\r\n\r\n"
+    ).encode() + img_bytes + f"\r\n--{boundary}--\r\n".encode()
+    req = urllib.request.Request(
+        f"{COMFYUI}/upload/image",
+        data=body,
+        headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
+        method="POST"
+    )
+    with urllib.request.urlopen(req) as r:
+        result = json.loads(r.read())
+    print(f"Uploaded image: {result['name']}")
+    return result["name"]
+
 def queue_prompt(workflow):
     data = json.dumps({"prompt": workflow}).encode()
-    req  = urllib.request.Request(f"{COMFYUI}/prompt", data=data,
-                                   headers={"Content-Type": "application/json"})
+    req = urllib.request.Request(f"{COMFYUI}/prompt", data=data,
+                                  headers={"Content-Type": "application/json"})
     try:
         with urllib.request.urlopen(req) as r:
             return json.loads(r.read())["prompt_id"]
@@ -36,28 +55,24 @@ def poll_done(prompt_id, timeout=3600):
     return None
 
 def handler(job):
-    # Диагностика нод
-    nodes_dir = "/comfyui/custom_nodes"
-    if os.path.exists(nodes_dir):
-        print(f"Custom nodes: {os.listdir(nodes_dir)}")
-    else:
-        print(f"ERROR: {nodes_dir} does not exist!")
+    job_input = job.get("input", {})
+    workflow  = job_input.get("workflow")
+    image_b64 = job_input.get("image_b64")
 
-    workflow = job.get("input", {}).get("workflow")
     if not workflow:
         return {"error": "No workflow"}
 
     if not wait_comfyui():
         return {"error": "ComfyUI not ready"}
 
-    # Проверяем доступные ноды
-    try:
-        with urllib.request.urlopen(f"{COMFYUI}/object_info", timeout=5) as r:
-            obj = json.loads(r.read())
-            wan_nodes = [k for k in obj.keys() if "Wan" in k]
-            print(f"Wan nodes available: {wan_nodes}")
-    except Exception as e:
-        print(f"Cannot get object_info: {e}")
+    # Если есть изображение — загружаем в ComfyUI
+    if image_b64:
+        try:
+            img_name = upload_image(image_b64)
+            if "11" in workflow:
+                workflow["11"]["inputs"]["image"] = img_name
+        except Exception as e:
+            return {"error": f"Image upload failed: {e}"}
 
     prompt_id = queue_prompt(workflow)
     print(f"Queued: {prompt_id}")
@@ -87,4 +102,5 @@ def handler(job):
         b64 = base64.b64encode(f.read()).decode()
     os.remove(path)
     return {"video_b64": b64, "size": size}
+
 runpod.serverless.start({"handler": handler})
