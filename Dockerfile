@@ -3,7 +3,7 @@ FROM runpod/worker-comfyui:5.8.5-base-cuda12.8.1
 RUN git clone --depth 1 https://github.com/kijai/ComfyUI-WanVideoWrapper.git \
         /opt/wanvideo/ComfyUI-WanVideoWrapper
 
-RUN pip install einops imageio scipy torchvision accelerate gguf --no-cache-dir --quiet && \
+RUN pip install einops imageio scipy torchvision accelerate gguf ftfy --no-cache-dir --quiet && \
     pip install -r /opt/wanvideo/ComfyUI-WanVideoWrapper/requirements.txt \
         --no-cache-dir --ignore-errors --quiet || true
 
