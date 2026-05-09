@@ -1,4 +1,4 @@
-FROM runpod/worker-comfyui:5.2.0-base
+FROM runpod/worker-comfyui:5.8.5-base-cuda12.8.1
 
 RUN git clone --depth 1 https://github.com/kijai/ComfyUI-WanVideoWrapper.git \
         /opt/wanvideo/ComfyUI-WanVideoWrapper
