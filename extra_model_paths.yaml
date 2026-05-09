@@ -5,3 +5,8 @@ wan2_volume:
   vae: models/vae/
   text_encoders: models/text_encoders/
   clip: models/clip/
+
+wan2_i2v:
+  base_path: /runpod-volume/models/i2v/
+  diffusion_models: ./
+  clip: ./
