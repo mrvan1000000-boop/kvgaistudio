@@ -1,26 +1,23 @@
 FROM runpod/worker-comfyui:5.2.0-base
 
+# Устанавливаем WanVideoWrapper при сборке
+RUN cd /comfyui/custom_nodes && \
+    git clone --depth 1 https://github.com/kijai/ComfyUI-WanVideoWrapper.git && \
+    pip install -r ComfyUI-WanVideoWrapper/requirements.txt --no-cache-dir && \
+    echo "Nodes installed:" && \
+    ls /comfyui/custom_nodes/
+
 COPY extra_model_paths.yaml /comfyui/extra_model_paths.yaml
 COPY handler.py /handler.py
 
-RUN printf '#!/bin/bash\n\
-set -e\n\
-echo "=== Checking WanVideoWrapper ==="\n\
-if [ ! -d "/comfyui/custom_nodes/ComfyUI-WanVideoWrapper" ]; then\n\
-    echo "Installing WanVideoWrapper..."\n\
-    cd /comfyui/custom_nodes\n\
-    git clone https://github.com/kijai/ComfyUI-WanVideoWrapper.git\n\
-    pip install -r ComfyUI-WanVideoWrapper/requirements.txt --no-cache-dir\n\
-    echo "Done!"\n\
-else\n\
-    echo "WanVideoWrapper already installed"\n\
-fi\n\
-echo "=== Starting ComfyUI ==="\n\
-cd /comfyui\n\
-python main.py --listen 0.0.0.0 --port 8188 &\n\
-echo "Waiting 40s for ComfyUI + nodes to load..."\n\
-sleep 40\n\
-echo "=== Starting handler ==="\n\
-python -u /handler.py\n' > /start_custom.sh && chmod +x /start_custom.sh
+# Простой старт без set -e
+RUN echo '#!/bin/bash' > /start_custom.sh && \
+    echo 'echo "=== Custom nodes:"' >> /start_custom.sh && \
+    echo 'ls /comfyui/custom_nodes/' >> /start_custom.sh && \
+    echo 'cd /comfyui' >> /start_custom.sh && \
+    echo 'python main.py --listen 0.0.0.0 --port 8188 &' >> /start_custom.sh && \
+    echo 'sleep 45' >> /start_custom.sh && \
+    echo 'python -u /handler.py' >> /start_custom.sh && \
+    chmod +x /start_custom.sh
 
 CMD ["/start_custom.sh"]
