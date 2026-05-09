@@ -9,4 +9,4 @@ wan2_volume:
 wan2_i2v:
   base_path: /runpod-volume/models/i2v/
   diffusion_models: ./
-  clip: ./
+  clip_vision: ./
