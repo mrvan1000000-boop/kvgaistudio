@@ -11,8 +11,7 @@ RUN git clone --depth 1 https://github.com/kijai/ComfyUI-WanVideoWrapper.git \
         /opt/skyreels/ComfyUI-SkyReelsWrapper && \
     git clone --depth 1 https://github.com/ltdrdata/ComfyUI-LTXVideo.git \
         /opt/ltx/ComfyUI-LTXVideo && \
-    git clone --depth 1 https://github.com/Acly/comfyui-upscale.git \
-        /opt/upscale/ComfyUI-Upscale
+    
 
 # ───────────────────────────────────────────────
 # 2. Зависимости
