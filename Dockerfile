@@ -1,17 +1,31 @@
 FROM runpod/worker-comfyui:5.8.5-base-cuda12.8.1
 
 # ───────────────────────────────────────────────
-# 1. Кастомные ноды
+# 1. Скачиваем кастомные ноды через ZIP (надёжно)
 # ───────────────────────────────────────────────
-RUN git clone --depth 1 https://github.com/kijai/ComfyUI-WanVideoWrapper.git \
-        /opt/wanvideo/ComfyUI-WanVideoWrapper && \
-    git clone --depth 1 https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.git \
-        /opt/vhs/ComfyUI-VideoHelperSuite && \
-    git clone --depth 1 https://github.com/SkyReels/ComfyUI-SkyReelsWrapper.git \
-        /opt/skyreels/ComfyUI-SkyReelsWrapper && \
-    git clone --depth 1 https://github.com/ArtVentureX/ComfyUI-LTXVideo.git \
-        /opt/ltx/ComfyUI-LTXVideo
-
+RUN mkdir -p /opt/wanvideo && \
+    curl -L https://github.com/kijai/ComfyUI-WanVideoWrapper/archive/refs/heads/main.zip -o /tmp/wan.zip && \
+    unzip /tmp/wan.zip -d /opt/wanvideo && \
+    mv /opt/wanvideo/ComfyUI-WanVideoWrapper-main /opt/wanvideo/ComfyUI-WanVideoWrapper && \
+    rm /tmp/wan.zip && \
+\
+    mkdir -p /opt/vhs && \
+    curl -L https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite/archive/refs/heads/main.zip -o /tmp/vhs.zip && \
+    unzip /tmp/vhs.zip -d /opt/vhs && \
+    mv /opt/vhs/ComfyUI-VideoHelperSuite-main /opt/vhs/ComfyUI-VideoHelperSuite && \
+    rm /tmp/vhs.zip && \
+\
+    mkdir -p /opt/skyreels && \
+    curl -L https://github.com/SkyReels/ComfyUI-SkyReelsWrapper/archive/refs/heads/main.zip -o /tmp/sky.zip && \
+    unzip /tmp/sky.zip -d /opt/skyreels && \
+    mv /opt/skyreels/ComfyUI-SkyReelsWrapper-main /opt/skyreels/ComfyUI-SkyReelsWrapper && \
+    rm /tmp/sky.zip && \
+\
+    mkdir -p /opt/ltx && \
+    curl -L https://github.com/ArtVentureX/ComfyUI-LTXVideo/archive/refs/heads/main.zip -o /tmp/ltx.zip && \
+    unzip /tmp/ltx.zip -d /opt/ltx && \
+    mv /opt/ltx/ComfyUI-LTXVideo-main /opt/ltx/ComfyUI-LTXVideo && \
+    rm /tmp/ltx.zip
 
 # ───────────────────────────────────────────────
 # 2. Зависимости
