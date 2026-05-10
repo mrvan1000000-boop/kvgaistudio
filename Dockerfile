@@ -10,8 +10,7 @@ RUN git clone --depth 1 https://github.com/kijai/ComfyUI-WanVideoWrapper.git \
     git clone --depth 1 https://github.com/SkyReels/ComfyUI-SkyReelsWrapper.git \
         /opt/skyreels/ComfyUI-SkyReelsWrapper && \
     git clone --depth 1 https://github.com/ltdrdata/ComfyUI-LTXVideo.git \
-        /opt/ltx/ComfyUI-LTXVideo && \
-    
+        /opt/ltx/ComfyUI-LTXVideo
 
 # ───────────────────────────────────────────────
 # 2. Зависимости
@@ -47,7 +46,6 @@ RUN echo '#!/bin/bash' > /start_custom.sh && \
     echo 'ln -sfn /opt/vhs/ComfyUI-VideoHelperSuite /comfyui/custom_nodes/VideoHelperSuite' >> /start_custom.sh && \
     echo 'ln -sfn /opt/skyreels/ComfyUI-SkyReelsWrapper /comfyui/custom_nodes/SkyReels' >> /start_custom.sh && \
     echo 'ln -sfn /opt/ltx/ComfyUI-LTXVideo /comfyui/custom_nodes/LTXVideo' >> /start_custom.sh && \
-    echo 'ln -sfn /opt/upscale/ComfyUI-Upscale /comfyui/custom_nodes/Upscale' >> /start_custom.sh && \
     echo '' >> /start_custom.sh && \
     echo 'echo "[INIT] Starting ComfyUI..."' >> /start_custom.sh && \
     echo 'cd /comfyui' >> /start_custom.sh && \
