@@ -3,7 +3,7 @@ import runpod, json, base64, os, glob, time, urllib.request
 COMFYUI = "http://127.0.0.1:8188"
 
 # ───────────────────────────────────────────────
-# 1. Ждём, пока ComfyUI поднимется
+# 1. Ждём ComfyUI
 # ───────────────────────────────────────────────
 def wait_comfyui(max_sec=120):
     for _ in range(max_sec):
@@ -16,9 +16,9 @@ def wait_comfyui(max_sec=120):
 
 
 # ───────────────────────────────────────────────
-# 2. Загрузка изображения в ComfyUI
+# 2. Загрузка изображения
 # ───────────────────────────────────────────────
-def upload_image(image_b64: str, filename: str = "input_image.jpg") -> str:
+def upload_image(image_b64: str, filename: str) -> str:
     img_bytes = base64.b64decode(image_b64)
     boundary = "FormBoundary7MA4YWxkTrZu0gW"
 
@@ -38,12 +38,12 @@ def upload_image(image_b64: str, filename: str = "input_image.jpg") -> str:
     with urllib.request.urlopen(req) as r:
         result = json.loads(r.read())
 
-    print(f"[HANDLER] Uploaded image: {result['name']}")
+    print(f"[HANDLER] Uploaded {filename}: {result['name']}")
     return result["name"]
 
 
 # ───────────────────────────────────────────────
-# 3. Отправка workflow в ComfyUI
+# 3. Отправка workflow
 # ───────────────────────────────────────────────
 def queue_prompt(workflow):
     data = json.dumps({"prompt": workflow}).encode()
@@ -62,7 +62,7 @@ def queue_prompt(workflow):
 
 
 # ───────────────────────────────────────────────
-# 4. Ожидание завершения пайплайна
+# 4. Ожидание результата
 # ───────────────────────────────────────────────
 def poll_done(prompt_id, timeout=3600):
     deadline = time.time() + timeout
@@ -71,10 +71,8 @@ def poll_done(prompt_id, timeout=3600):
         try:
             with urllib.request.urlopen(f"{COMFYUI}/history/{prompt_id}") as r:
                 h = json.loads(r.read())
-
             if prompt_id in h:
                 return h[prompt_id]
-
         except:
             pass
 
@@ -88,8 +86,12 @@ def poll_done(prompt_id, timeout=3600):
 # ───────────────────────────────────────────────
 def handler(job):
     job_input = job.get("input", {})
-    workflow  = job_input.get("workflow")
-    image_b64 = job_input.get("image_b64")
+
+    workflow        = job_input.get("workflow")
+    face_b64        = job_input.get("face_image_b64")
+    target_b64      = job_input.get("target_image_b64")
+    control_b64     = job_input.get("control_image_b64")  # для motion control
+    image_b64_legacy = job_input.get("image_b64")          # старый формат
 
     if not workflow:
         return {"error": "No workflow provided"}
@@ -99,27 +101,61 @@ def handler(job):
         return {"error": "ComfyUI not ready"}
 
     # ───────────────────────────────────────────────
-    # Если есть изображение — загружаем и подставляем
+    # FaceSwap: source face
     # ───────────────────────────────────────────────
-    if image_b64:
+    if face_b64:
         try:
-            img_name = upload_image(image_b64)
+            face_name = upload_image(face_b64, "face.jpg")
+            workflow["10"]["inputs"]["source_image"] = face_name
+        except Exception as e:
+            return {"error": f"Face upload failed: {e}"}
 
-            # Поддержка WAN I2V
-            if "11" in workflow:
-                workflow["11"]["inputs"]["image"] = img_name
+    # ───────────────────────────────────────────────
+    # FaceSwap: target image
+    # ───────────────────────────────────────────────
+    if target_b64:
+        try:
+            target_name = upload_image(target_b64, "target.jpg")
+            workflow["10"]["inputs"]["target_image"] = target_name
 
-            # Поддержка SkyReels (если нода требует image)
+            # Motion Control (если нода использует image)
             for node_id, node in workflow.items():
                 if isinstance(node, dict) and "inputs" in node:
-                    if "image" in node["inputs"] and node["inputs"]["image"] == "__UPLOAD__":
-                        node["inputs"]["image"] = img_name
+                    if node["inputs"].get("image") == "__UPLOAD__":
+                        node["inputs"]["image"] = target_name
 
         except Exception as e:
-            return {"error": f"Image upload failed: {e}"}
+            return {"error": f"Target upload failed: {e}"}
 
     # ───────────────────────────────────────────────
-    # Отправляем workflow
+    # Motion Control: control image (если есть)
+    # ───────────────────────────────────────────────
+    if control_b64:
+        try:
+            control_name = upload_image(control_b64, "control.jpg")
+
+            # Подставляем в ноды 20/21 (pose/depth)
+            for node_id in ["20", "21"]:
+                if node_id in workflow:
+                    if "image" in workflow[node_id]["inputs"]:
+                        workflow[node_id]["inputs"]["image"] = control_name
+
+        except Exception as e:
+            return {"error": f"Control image upload failed: {e}"}
+
+    # ───────────────────────────────────────────────
+    # Legacy image_b64 (старый формат)
+    # ───────────────────────────────────────────────
+    if image_b64_legacy and not target_b64:
+        try:
+            img_name = upload_image(image_b64_legacy, "input.jpg")
+            if "11" in workflow:
+                workflow["11"]["inputs"]["image"] = img_name
+        except Exception as e:
+            return {"error": f"Legacy image upload failed: {e}"}
+
+    # ───────────────────────────────────────────────
+    # Запуск workflow
     # ───────────────────────────────────────────────
     prompt_id = queue_prompt(workflow)
     print(f"[HANDLER] Queued prompt: {prompt_id}")
@@ -133,7 +169,7 @@ def handler(job):
         return {"error": str(status.get("messages", "unknown"))}
 
     # ───────────────────────────────────────────────
-    # Ищем mp4 в output
+    # Ищем mp4
     # ───────────────────────────────────────────────
     out_dir = "/comfyui/output"
 
