@@ -9,8 +9,9 @@ RUN git clone --depth 1 https://github.com/kijai/ComfyUI-WanVideoWrapper.git \
         /opt/vhs/ComfyUI-VideoHelperSuite && \
     git clone --depth 1 https://github.com/SkyReels/ComfyUI-SkyReelsWrapper.git \
         /opt/skyreels/ComfyUI-SkyReelsWrapper && \
-    git clone --depth 1 https://github.com/ltdrdata/ComfyUI-LTXVideo.git \
+    git clone --depth 1 https://github.com/ArtVentureX/ComfyUI-LTXVideo.git \
         /opt/ltx/ComfyUI-LTXVideo
+
 
 # ───────────────────────────────────────────────
 # 2. Зависимости
