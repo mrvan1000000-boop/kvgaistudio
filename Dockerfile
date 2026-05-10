@@ -7,9 +7,9 @@ RUN git clone --depth 1 https://github.com/kijai/ComfyUI-WanVideoWrapper.git \
         /opt/wanvideo/ComfyUI-WanVideoWrapper && \
     git clone --depth 1 https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.git \
         /opt/vhs/ComfyUI-VideoHelperSuite && \
-    git clone --depth 1 https://github.com/SkyReels/ComfyUI-SkyReels.git \
-        /opt/skyreels/ComfyUI-SkyReels && \
-    git clone --depth 1 https://github.com/ltxvideo/ComfyUI-LTXVideo.git \
+    git clone --depth 1 https://github.com/SkyReels/ComfyUI-SkyReelsWrapper.git \
+        /opt/skyreels/ComfyUI-SkyReelsWrapper && \
+    git clone --depth 1 https://github.com/ltdrdata/ComfyUI-LTXVideo.git \
         /opt/ltx/ComfyUI-LTXVideo && \
     git clone --depth 1 https://github.com/Acly/comfyui-upscale.git \
         /opt/upscale/ComfyUI-Upscale
