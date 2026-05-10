@@ -20,17 +20,15 @@ RUN git clone --depth 1 https://github.com/kijai/ComfyUI-WanVideoWrapper.git \
 RUN /opt/venv/bin/pip install \
         einops imageio scipy torchvision accelerate gguf ftfy diffusers \
         transformers sentencepiece tokenizers huggingface-hub \
-        opencv-python-headless av imageio-ffmpeg runpod \
+        opencv-python-headless av imageio-ffmpeg runpod basicsr realesrgan \
         --no-cache-dir --quiet && \
     /opt/venv/bin/pip install -r /opt/wanvideo/ComfyUI-WanVideoWrapper/requirements.txt \
         --no-cache-dir --quiet || true && \
     /opt/venv/bin/pip install -r /opt/vhs/ComfyUI-VideoHelperSuite/requirements.txt \
         --no-cache-dir --quiet || true && \
-    /opt/venv/bin/pip install -r /opt/skyreels/ComfyUI-SkyReels/requirements.txt \
+    /opt/venv/bin/pip install -r /opt/skyreels/ComfyUI-SkyReelsWrapper/requirements.txt \
         --no-cache-dir --quiet || true && \
     /opt/venv/bin/pip install -r /opt/ltx/ComfyUI-LTXVideo/requirements.txt \
-        --no-cache-dir --quiet || true && \
-    /opt/venv/bin/pip install -r /opt/upscale/ComfyUI-Upscale/requirements.txt \
         --no-cache-dir --quiet || true
 
 # ───────────────────────────────────────────────
@@ -48,7 +46,7 @@ RUN echo '#!/bin/bash' > /start_custom.sh && \
     echo 'mkdir -p /comfyui/custom_nodes' >> /start_custom.sh && \
     echo 'ln -sfn /opt/wanvideo/ComfyUI-WanVideoWrapper /comfyui/custom_nodes/WanVideoWrapper' >> /start_custom.sh && \
     echo 'ln -sfn /opt/vhs/ComfyUI-VideoHelperSuite /comfyui/custom_nodes/VideoHelperSuite' >> /start_custom.sh && \
-    echo 'ln -sfn /opt/skyreels/ComfyUI-SkyReels /comfyui/custom_nodes/SkyReels' >> /start_custom.sh && \
+    echo 'ln -sfn /opt/skyreels/ComfyUI-SkyReelsWrapper /comfyui/custom_nodes/SkyReels' >> /start_custom.sh && \
     echo 'ln -sfn /opt/ltx/ComfyUI-LTXVideo /comfyui/custom_nodes/LTXVideo' >> /start_custom.sh && \
     echo 'ln -sfn /opt/upscale/ComfyUI-Upscale /comfyui/custom_nodes/Upscale' >> /start_custom.sh && \
     echo '' >> /start_custom.sh && \
