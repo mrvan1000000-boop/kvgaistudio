@@ -6,53 +6,63 @@ FROM runpod/worker-comfyui:5.8.5-base-cuda12.8.1
 RUN apt-get update && apt-get install -y unzip curl && rm -rf /var/lib/apt/lists/*
 
 # ───────────────────────────────────────────────
-# 1. Скачиваем кастомные ноды через ZIP (универсальный mv)
+# 1. WANVideoWrapper
 # ───────────────────────────────────────────────
 RUN mkdir -p /opt/wanvideo && \
     curl -L https://github.com/kijai/ComfyUI-WanVideoWrapper/archive/refs/heads/main.zip -o /tmp/wan.zip && \
     unzip /tmp/wan.zip -d /opt/wanvideo && \
     mv /opt/wanvideo/ComfyUI-WanVideoWrapper-* /opt/wanvideo/ComfyUI-WanVideoWrapper && \
-    rm /tmp/wan.zip && \
-\
-    mkdir -p /opt/vhs && \
+    rm /tmp/wan.zip
+
+# ───────────────────────────────────────────────
+# 2. VideoHelperSuite
+# ───────────────────────────────────────────────
+RUN mkdir -p /opt/vhs && \
     curl -L https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite/archive/refs/heads/main.zip -o /tmp/vhs.zip && \
     unzip /tmp/vhs.zip -d /opt/vhs && \
     mv /opt/vhs/ComfyUI-VideoHelperSuite-* /opt/vhs/ComfyUI-VideoHelperSuite && \
-    rm /tmp/vhs.zip && \
-\
-    mkdir -p /opt/skyreels && \
+    rm /tmp/vhs.zip
+
+# ───────────────────────────────────────────────
+# 3. SkyReelsWrapper
+# ───────────────────────────────────────────────
+RUN mkdir -p /opt/skyreels && \
     curl -L https://github.com/SkyReels/ComfyUI-SkyReelsWrapper/archive/refs/heads/main.zip -o /tmp/sky.zip && \
     unzip /tmp/sky.zip -d /opt/skyreels && \
     mv /opt/skyreels/ComfyUI-SkyReelsWrapper-* /opt/skyreels/ComfyUI-SkyReelsWrapper && \
-    rm /tmp/sky.zip && \
-\
-    mkdir -p /opt/ltx && \
+    rm /tmp/sky.zip
+
+# ───────────────────────────────────────────────
+# 4. LTXVideo
+# ───────────────────────────────────────────────
+RUN mkdir -p /opt/ltx && \
     curl -L https://github.com/ArtVentureX/ComfyUI-LTXVideo/archive/refs/heads/main.zip -o /tmp/ltx.zip && \
     unzip /tmp/ltx.zip -d /opt/ltx && \
     mv /opt/ltx/ComfyUI-LTXVideo-* /opt/ltx/ComfyUI-LTXVideo && \
     rm /tmp/ltx.zip
 
 # ───────────────────────────────────────────────
-# 2. Python зависимости
+# 5. Python зависимости
 # ───────────────────────────────────────────────
 RUN /opt/venv/bin/pip install \
         einops imageio scipy torchvision accelerate gguf ftfy diffusers \
         transformers sentencepiece tokenizers huggingface-hub \
         opencv-python-headless av imageio-ffmpeg runpod basicsr realesrgan \
-        --no-cache-dir --quiet && \
-    /opt/venv/bin/pip install -r /opt/wanvideo/ComfyUI-WanVideoWrapper/requirements.txt --no-cache-dir --quiet || true && \
-    /opt/venv/bin/pip install -r /opt/vhs/ComfyUI-VideoHelperSuite/requirements.txt --no-cache-dir --quiet || true && \
-    /opt/venv/bin/pip install -r /opt/skyreels/ComfyUI-SkyReelsWrapper/requirements.txt --no-cache-dir --quiet || true && \
-    /opt/venv/bin/pip install -r /opt/ltx/ComfyUI-LTXVideo/requirements.txt --no-cache-dir --quiet || true
+        --no-cache-dir --quiet
+
+RUN /opt/venv/bin/pip install -r /opt/wanvideo/ComfyUI-WanVideoWrapper/requirements.txt --no-cache-dir --quiet || true
+RUN /opt/venv/bin/pip install -r /opt/vhs/ComfyUI-VideoHelperSuite/requirements.txt --no-cache-dir --quiet || true
+RUN /opt/venv/bin/pip install -r /opt/skyreels/ComfyUI-SkyReelsWrapper/requirements.txt --no-cache-dir --quiet || true
+RUN /opt/venv/bin/pip install -r /opt/ltx/ComfyUI-LTXVideo/requirements.txt --no-cache-dir --quiet || true
 
 # ───────────────────────────────────────────────
-# 3. Конфиги и handler
+# 6. Конфиги и handler
 # ───────────────────────────────────────────────
 COPY extra_model_paths.yaml /comfyui/extra_model_paths.yaml
 COPY handler.py /handler.py
 
 # ───────────────────────────────────────────────
-# 4. Стартовый скрипт
+# 7. Стартовый скрипт
 # ───────────────────────────────────────────────
 RUN echo '#!/bin/bash' > /start_custom.sh && \
     echo 'set -e' >> /start_custom.sh && \
