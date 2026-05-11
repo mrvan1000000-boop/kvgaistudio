@@ -1,4 +1,4 @@
-wan:
+wan2_volume:
   base_path: /runpod-volume/
   checkpoints: models/checkpoints/
   diffusion_models: models/checkpoints/
@@ -6,27 +6,7 @@ wan:
   text_encoders: models/text_encoders/
   clip_vision: models/clip/
 
-i2v:
+wan2_i2v:
   base_path: /runpod-volume/models/i2v/
   diffusion_models: ./
   clip_vision: ./
-
-skyreels:
-  base_path: /runpod-volume/models/skyreels/
-  checkpoints: ./
-
-ltx:
-  base_path: /runpod-volume/models/ltx/
-  checkpoints: ./
-
-vhs:
-  base_path: /runpod-volume/models/vhs/
-  checkpoints: ./
-
-rife:
-  base_path: /runpod-volume/models/rife/
-  checkpoints: ./
-
-upscale:
-  base_path: /runpod-volume/models/upscale/
-  checkpoints: ./
