@@ -18,7 +18,7 @@ RUN mkdir -p /opt/vhs && \
     mv /opt/vhs/ComfyUI-VideoHelperSuite-* /opt/vhs/ComfyUI-VideoHelperSuite && \
     rm /tmp/vhs.zip
 
-# ── 3. LTXVideo (официальный Lightricks)
+# ── 3. LTXVideo
 RUN mkdir -p /opt/ltx && \
     curl -L https://github.com/Lightricks/ComfyUI-LTXVideo/archive/refs/heads/main.zip \
          -o /tmp/ltx.zip && \
@@ -33,11 +33,14 @@ RUN /opt/venv/bin/pip install \
         opencv-python-headless av imageio-ffmpeg runpod basicsr realesrgan \
         --no-cache-dir --quiet
 
-RUN /opt/venv/bin/pip install -r /opt/wanvideo/ComfyUI-WanVideoWrapper/requirements.txt \
+RUN /opt/venv/bin/pip install \
+        -r /opt/wanvideo/ComfyUI-WanVideoWrapper/requirements.txt \
         --no-cache-dir --quiet || true
-RUN /opt/venv/bin/pip install -r /opt/vhs/ComfyUI-VideoHelperSuite/requirements.txt \
+RUN /opt/venv/bin/pip install \
+        -r /opt/vhs/ComfyUI-VideoHelperSuite/requirements.txt \
         --no-cache-dir --quiet || true
-RUN /opt/venv/bin/pip install -r /opt/ltx/ComfyUI-LTXVideo/requirements.txt \
+RUN /opt/venv/bin/pip install \
+        -r /opt/ltx/ComfyUI-LTXVideo/requirements.txt \
         --no-cache-dir --quiet || true
 
 # ── 5. Конфиги
