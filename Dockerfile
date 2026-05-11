@@ -18,7 +18,15 @@ RUN mkdir -p /opt/vhs && \
     mv /opt/vhs/ComfyUI-VideoHelperSuite-* /opt/vhs/ComfyUI-VideoHelperSuite && \
     rm /tmp/vhs.zip
 
-# ── 3. Python зависимости
+# ── 3. LTXVideo
+RUN mkdir -p /opt/ltx && \
+    curl -L https://github.com/Lightricks/ComfyUI-LTXVideo/archive/refs/heads/main.zip \
+         -o /tmp/ltx.zip && \
+    unzip /tmp/ltx.zip -d /opt/ltx && \
+    mv /opt/ltx/ComfyUI-LTXVideo-* /opt/ltx/ComfyUI-LTXVideo && \
+    rm /tmp/ltx.zip
+
+# ── 4. Python зависимости
 RUN /opt/venv/bin/pip install \
         einops imageio scipy torchvision accelerate gguf ftfy diffusers \
         transformers sentencepiece tokenizers huggingface-hub \
@@ -31,16 +39,20 @@ RUN /opt/venv/bin/pip install \
 RUN /opt/venv/bin/pip install \
         -r /opt/vhs/ComfyUI-VideoHelperSuite/requirements.txt \
         --no-cache-dir --quiet || true
+RUN /opt/venv/bin/pip install \
+        -r /opt/ltx/ComfyUI-LTXVideo/requirements.txt \
+        --no-cache-dir --quiet || true
 
-# ── 4. Конфиги
+# ── 5. Конфиги
 COPY extra_model_paths.yaml /comfyui/extra_model_paths.yaml
 COPY handler.py /handler.py
 
-# ── 5. Стартовый скрипт
+# ── 6. Стартовый скрипт
 RUN printf '#!/bin/bash\nset -e\n\
 mkdir -p /comfyui/custom_nodes\n\
 ln -sfn /opt/wanvideo/ComfyUI-WanVideoWrapper /comfyui/custom_nodes/WanVideoWrapper\n\
 ln -sfn /opt/vhs/ComfyUI-VideoHelperSuite /comfyui/custom_nodes/VideoHelperSuite\n\
+ln -sfn /opt/ltx/ComfyUI-LTXVideo /comfyui/custom_nodes/LTXVideo\n\
 cd /comfyui\n\
 /opt/venv/bin/python main.py --listen 0.0.0.0 --port 8188 &\n\
 sleep 60\n\
