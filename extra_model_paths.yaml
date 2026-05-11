@@ -10,3 +10,17 @@ wan2_i2v:
   base_path: /runpod-volume/models/i2v/
   diffusion_models: ./
   clip_vision: ./
+
+skyreels:
+  base_path: /runpod-volume/models/skyreels/
+  checkpoints: ./
+  diffusion_models: ./
+
+ltx:
+  base_path: /runpod-volume/models/ltx/
+  checkpoints: ./
+  diffusion_models: ./
+
+upscale_models:
+  base_path: /runpod-volume/models/upscale/
+  upscale_models: ./
