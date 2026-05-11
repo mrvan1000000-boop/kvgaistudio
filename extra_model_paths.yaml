@@ -6,11 +6,6 @@ wan2_volume:
   text_encoders: models/text_encoders/
   clip_vision: models/clip/
 
-wan2_i2v:
-  base_path: /runpod-volume/models/i2v/
-  diffusion_models: ./
-  clip_vision: ./
-
 skyreels:
   base_path: /runpod-volume/models/skyreels/
   checkpoints: ./
