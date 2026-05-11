@@ -20,7 +20,7 @@ RUN mkdir -p /opt/vhs && \
 
 # ── 3. LTXVideo
 RUN mkdir -p /opt/ltx && \
-    curl -L https://github.com/Lightricks/ComfyUI-LTXVideo/archive/refs/heads/main.zip \
+    curl -L https://github.com/Lightricks/ComfyUI-LTXVideo/archive/refs/heads/master.zip \
          -o /tmp/ltx.zip && \
     unzip /tmp/ltx.zip -d /opt/ltx && \
     mv /opt/ltx/ComfyUI-LTXVideo-* /opt/ltx/ComfyUI-LTXVideo && \
